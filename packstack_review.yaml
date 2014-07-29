@@ -1,6 +1,6 @@
 heat_template_version: 2013-05-23
 
-description: Simple template to deploy a single instance with public access
+description: Creates an instance and sets the environment for testing packstack with the gerrit_review patch
 
 parameters:
   gerrit_review:
