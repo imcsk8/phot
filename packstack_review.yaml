@@ -1,0 +1,57 @@
+heat_template_version: 2013-05-23
+
+description: Simple template to deploy a single instance with public access
+
+parameters:
+  gerrit_review:
+    type: string
+    description: git command to get a gerrit patch to test
+
+resources:
+  RHOSP5-TEST:
+    type: OS::Nova::Server
+    properties:
+      image: OSP-5-RHEL-7-Template
+      flavor: m1.large
+      name: instance0
+      networks:
+        - port: { get_resource: instance0_port0 }
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash
+            echo "$review" > /root/review.txt
+            curl http://team.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm > /root/rhos-release-latest.noarch.rpm
+            cd /root
+            yum install -y rhos-release-latest.noarch.rpm
+            rhos-release 5
+            yum install -y git python-setuptools screen
+            git clone https://github.com/stackforge/packstack.git packstack
+            cd packstack
+            $review
+            python setup.py install            
+            python setup.py install_puppet_modules
+            cd /root
+            screen -t packstack -S packstack /usr/bin/packstack -d --allinone
+          params:
+            $review: { get_param: gerrit_review }
+  instance0_port0:
+    type: OS::Neutron::Port
+    properties:
+      network_id: c6807c63-2d02-40fd-b7ad-019bbf2bd9df
+      security_groups:
+        - f0fd744b-a49b-4ecd-9146-8d6752942cb6
+  server1_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: eb94d7e2-94be-45ee-bea0-22b9b362f04f
+      port_id: { get_resource: instance0_port0 }
+
+outputs:
+  instance0_private_ip:
+    description: IP address of instance0 in private network
+    value: { get_attr: [ instance0, first_address ] }
+  instance0_public_ip:
+    description: Floating IP address of instance0 in public network
+    value: { get_attr: [ server1_floating_ip, floating_ip_address ] }
+
