@@ -3,6 +3,9 @@ heat_template_version: 2013-05-23
 description: Creates an instance and sets the environment for testing packstack with the gerrit_review patch
 
 parameters:
+  branch:
+    type: string
+    description: git branch to test
   gerrit_review:
     type: string
     description: git command to get a gerrit patch to test
@@ -20,13 +23,13 @@ resources:
         str_replace:
           template: |
             #!/bin/bash
-            echo "$review" > /root/review.txt
+            echo "$branch:$review" > /root/review.txt
             curl http://team.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm > /root/rhos-release-latest.noarch.rpm
             cd /root
             yum install -y rhos-release-latest.noarch.rpm
             rhos-release 5
             yum install -y git python-setuptools screen
-            git clone https://github.com/stackforge/packstack.git packstack
+            git clone -b $branch https://github.com/stackforge/packstack.git packstack
             cd packstack
             $review
             python setup.py install            
@@ -34,6 +37,7 @@ resources:
             cd /root
             screen -t packstack -S packstack /usr/bin/packstack -d --allinone
           params:
+            $branch: { get_param: branch }
             $review: { get_param: gerrit_review }
   instance0_port0:
     type: OS::Neutron::Port
