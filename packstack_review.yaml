@@ -6,15 +6,37 @@ parameters:
   branch:
     type: string
     description: git branch to test
+    default: master
   gerrit_review:
     type: string
     description: git command to get a gerrit patch to test
+    default: ""
+  image:
+    type: string
+    description: image from which to boot
+    default: OSP-5-RHEL-7-Template
+  key_name:
+    type: string
+    description: ssh key for access
+  security_group_id:
+    type: string
+    description: security group to use for instance
+    default: f0fd744b-a49b-4ecd-9146-8d6752942cb6
+  private_network_id:
+    type: string
+    description: UUID of private network
+    default: c6807c63-2d02-40fd-b7ad-019bbf2bd9df
+  public_network_id:
+    type: string
+    description: UUID of floating ip network
+    default: eb94d7e2-94be-45ee-bea0-22b9b362f04f
+
 
 resources:
   RHOSP5-TEST:
     type: OS::Nova::Server
     properties:
-      image: OSP-5-RHEL-7-Template
+      image: { get_param: image }
       flavor: m1.large
       name: instance0
       networks:
@@ -42,13 +64,13 @@ resources:
   instance0_port0:
     type: OS::Neutron::Port
     properties:
-      network_id: c6807c63-2d02-40fd-b7ad-019bbf2bd9df
+      network_id: { get_param: private_network_id }
       security_groups:
-        - f0fd744b-a49b-4ecd-9146-8d6752942cb6
+        - { get_param: security_group_id }
   server1_floating_ip:
     type: OS::Neutron::FloatingIP
     properties:
-      floating_network_id: eb94d7e2-94be-45ee-bea0-22b9b362f04f
+      floating_network_id: { get_param: public_network_id }
       port_id: { get_resource: instance0_port0 }
 
 outputs:
