@@ -4,7 +4,7 @@ phot
 Heat templates to test packstack inside openstack instances
 
 Usage:
-====
+=====
 
 Packstack review allinone:
 
