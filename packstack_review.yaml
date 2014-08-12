@@ -3,6 +3,10 @@ heat_template_version: 2013-05-23
 description: Creates an instance and sets the environment for testing packstack with the gerrit_review patch
 
 parameters:
+  instance_name:
+    type: string
+    description: name of the instance to create
+    default: instance0
   branch:
     type: string
     description: git branch to test
@@ -38,7 +42,7 @@ resources:
     properties:
       image: { get_param: image }
       flavor: m1.large
-      name: instance0
+      name: { get_param: instance_name }
       networks:
         - port: { get_resource: instance0_port0 }
       user_data:
@@ -46,6 +50,7 @@ resources:
           template: |
             #!/bin/bash
             echo "$branch:$review" > /root/review.txt
+            ip link mtu 1454
             curl http://team.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm > /root/rhos-release-latest.noarch.rpm
             cd /root
             yum install -y rhos-release-latest.noarch.rpm
@@ -57,7 +62,7 @@ resources:
             python setup.py install            
             python setup.py install_puppet_modules
             cd /root
-            su - root -c '/usr/bin/screen -t packstack -dmS packstack /usr/bin/packstack -d --allinone'
+            su - root -c '/usr/bin/screen -t packstack -S packstack /usr/bin/packstack -d --allinone'
           params:
             $branch: { get_param: branch }
             $review: { get_param: gerrit_review }
@@ -76,7 +81,7 @@ resources:
 outputs:
   instance0_private_ip:
     description: IP address of instance0 in private network
-    value: { get_attr: [ instance0, first_address ] }
+    value: { get_attr: [ { get_param: instance_name }, first_address ] }
   instance0_public_ip:
     description: Floating IP address of instance0 in public network
     value: { get_attr: [ server1_floating_ip, floating_ip_address ] }
