@@ -50,7 +50,7 @@ resources:
           template: |
             #!/bin/bash
             echo "$branch:$review" > /root/review.txt
-            ip link mtu 1454 eth0
+            ip link set mtu 1454 eth0
             curl http://team.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm > /root/rhos-release-latest.noarch.rpm
             cd /root
             yum install -y rhos-release-latest.noarch.rpm
