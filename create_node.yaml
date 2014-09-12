@@ -36,6 +36,15 @@ resources:
       name: { get_param: instance_name }
       networks:
         - port: { get_resource: instance0_port0 }
+      #user_data: |
+        #!/usr/bin/env bash
+      #  setenforce 0
+      #  hostname foreman.example.com
+      #  echo -e "$host_ip\tforeman.example.com\tforeman" >> /etc/hosts
+      #  sed -i s/HOSTNAME=.*/HOSTNAME=`hostname -f`/g /etc/sysconfig/network
+      #params:
+      #  $host_ip: { get_attr: [ { get_param: instance_name }, first_address ] }
+
   instance0_port0:
     type: OS::Neutron::Port
     properties:

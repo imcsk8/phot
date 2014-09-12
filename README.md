@@ -33,12 +33,6 @@ Create generic node:
 Notes:
 =====
 
-For some reason i haven't found the screen command that executes packstack does
-not get executed, you have to execute it manually:
-
-    /usr/bin/screen -t packstack -S packstack /usr/bin/packstack -d --allinone
-
-
 The packstack_review template does not return the floating ip address so you
 have to retrieve it manually:
 
