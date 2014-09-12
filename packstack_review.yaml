@@ -62,7 +62,7 @@ resources:
             python setup.py install            
             python setup.py install_puppet_modules
             cd /root
-            su - root -c '/usr/bin/screen -t packstack -S packstack /usr/bin/packstack -d --allinone'
+            su - root -c '/usr/bin/screen -L -d -m -t packstack -S packstack /usr/bin/packstack -d --allinone'
           params:
             $branch: { get_param: branch }
             $review: { get_param: gerrit_review }
