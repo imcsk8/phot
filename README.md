@@ -33,10 +33,23 @@ Create generic node:
 Notes:
 =====
 
-For some reason i haven't found the screen command that executes packstack does not
-get executed, you have to execute it manually:
+For some reason i haven't found the screen command that executes packstack does
+not get executed, you have to execute it manually:
 
     /usr/bin/screen -t packstack -S packstack /usr/bin/packstack -d --allinone
 
 
+The packstack_review template does not return the floating ip address so you
+have to retrieve it manually:
+
+    $ nova list
+    +--------------------------------------+-----------------+---------+------------+-------------+-----------------------------------+
+    | ID                                   | Name            | Status  | Task State | Power State | Networks                          |
+    +--------------------------------------+-----------------+---------+------------+-------------+-----------------------------------+
+    | 0b755687-2c20-4319-bc9c-ea7b3ab866dd | juno-test-f20   | SHUTOFF | None       | Shutdown    | testnet=192.168.0.2               |
+    | 9a9322a3-3804-4ac7-94f6-d6486728da29 | juno-test-f20-2 | ACTIVE  | None       | Running     | testnet=192.168.0.5, 10.16.18.237 |
+    | 09091636-129f-47f7-8397-0ba2c1845850 | rhos5-mysql     | ACTIVE  | None       | Running     | testnet=192.168.0.4, 10.16.18.215 |
+    +--------------------------------------+-----------------+---------+------------+-------------+-----------------------------------+
+
+    $ ssh root@10.16.18.215
 
