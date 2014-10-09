@@ -14,7 +14,11 @@ parameters:
   gerrit_review:
     type: string
     description: git command to get a gerrit patch to test
-    default: ""
+    default: "echo NO-REVIEW"
+  run_packstack:
+    type: string
+    description: Run packstack if true
+    default: "true"
   image:
     type: string
     description: image from which to boot
@@ -34,7 +38,10 @@ parameters:
     type: string
     description: UUID of floating ip network
     default: eb94d7e2-94be-45ee-bea0-22b9b362f04f
-
+  rhos_release:
+    type: string
+    description: RHOS Release
+    default: "5"
 
 resources:
   RHOSP5-TEST:
@@ -54,7 +61,7 @@ resources:
             curl http://team.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm > /root/rhos-release-latest.noarch.rpm
             cd /root
             yum install -y rhos-release-latest.noarch.rpm
-            rhos-release 5
+            rhos-release $release
             yum install -y git python-setuptools screen
             git clone -b $branch https://github.com/stackforge/packstack.git packstack
             cd packstack
@@ -62,10 +69,12 @@ resources:
             python setup.py install            
             python setup.py install_puppet_modules
             cd /root
-            su - root -c '/usr/bin/screen -L -d -m -t packstack -S packstack /usr/bin/packstack -d --allinone'
+            if [ $run == "true" ]; then su - root -c '/usr/bin/screen -L -d -m -t packstack -S packstack /usr/bin/packstack -d --allinone'; fi
           params:
             $branch: { get_param: branch }
             $review: { get_param: gerrit_review }
+            $release: { get_param: rhos_release }
+            $run: { get_param: run_packstack }
   instance0_port0:
     type: OS::Neutron::Port
     properties:

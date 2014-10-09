@@ -7,10 +7,10 @@ parameters:
     type: string
     description: name of the instance to create
     default: instance0
-  branch:
+  rdo_release:
     type: string
-    description: git branch to test
-    default: master
+    description: git rdo release to test
+    default: -juno
   gerrit_review:
     type: string
     description: git command to get a gerrit patch to test
@@ -50,7 +50,8 @@ resources:
           template: |
             #!/bin/bash
             ip link set mtu 1454 eth0
-            yum install -y https://rdo.fedorapeople.org/rdo-release.rpm
+            #yum install -y https://rdo.fedorapeople.org/rdo-release$release.rpm
+            yum install -y https://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm
             yum install -y yum-fastestmirror yum-presto deltarpm
             yum update -y
             setenforce permissive
@@ -58,8 +59,8 @@ resources:
             yum install -y screen openstack-packstack
             su - root -c '/usr/bin/screen -L -d -m -t packstack -S packstack /usr/bin/packstack -d --allinone'
           params:
-            $branch: { get_param: branch }
             $review: { get_param: gerrit_review }
+            $release: { get_param: rdo_release }
   instance0_port0:
     type: OS::Neutron::Port
     properties:
